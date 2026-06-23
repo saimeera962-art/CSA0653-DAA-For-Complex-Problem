@@ -1,0 +1,44 @@
+n = int(input("Enter number of vertices: "))
+e = int(input("Enter number of edges: "))
+
+edges = []
+
+print("Enter source destination weight:")
+
+for i in range(e):
+    u, v, w = map(int, input().split())
+    edges.append([w, u, v])
+
+edges.sort()
+
+parent = []
+
+for i in range(n):
+    parent.append(i)
+
+cost = 0
+count = 0
+
+print("\nEdges in MST:")
+
+for w, u, v in edges:
+
+    x = u
+    while parent[x] != x:
+        x = parent[x]
+
+    y = v
+    while parent[y] != y:
+        y = parent[y]
+
+    if x != y:
+        print(u, "-", v, "=", w)
+        cost += w
+        parent[x] = y
+        count += 1
+
+    if count == n - 1:
+        break
+
+print("\nMinimum Cost =", cost)
+
