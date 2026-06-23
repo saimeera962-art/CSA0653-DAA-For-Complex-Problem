@@ -1,0 +1,21 @@
+capital = [20000, 30000, 40000, 50000]
+returns = [25000, 40000, 50000, 70000]
+budget = 80000
+
+n = len(capital)
+
+dp = [[0]*(budget+1) for _ in range(n+1)]
+
+for i in range(1, n+1):
+    for w in range(budget+1):
+
+        if capital[i-1] <= w:
+            dp[i][w] = max(
+                dp[i-1][w],
+                returns[i-1] +
+                dp[i-1][w-capital[i-1]]
+            )
+        else:
+            dp[i][w] = dp[i-1][w]
+
+print("Maximum Return =", dp[n][budget])
