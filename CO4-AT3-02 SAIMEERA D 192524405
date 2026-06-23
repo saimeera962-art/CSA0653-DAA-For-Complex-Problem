@@ -1,0 +1,70 @@
+# Comparing Greedy and Dynamic Programming
+# Delivery Vehicle Loading Problem
+
+weights = [10, 20, 30, 25]
+profits = [60, 100, 120, 110]
+packages = ["P1", "P2", "P3", "P4"]
+
+capacity = 50
+
+# ---------------- GREEDY APPROACH ----------------
+items = []
+
+for i in range(len(packages)):
+    ratio = profits[i] / weights[i]
+    items.append((ratio, weights[i], profits[i], packages[i]))
+
+items.sort(reverse=True)
+
+greedy_packages = []
+greedy_weight = 0
+greedy_profit = 0
+
+for ratio, weight, profit, package in items:
+    if greedy_weight + weight <= capacity:
+        greedy_packages.append(package)
+        greedy_weight += weight
+        greedy_profit += profit
+
+# ---------------- DYNAMIC PROGRAMMING ----------------
+n = len(weights)
+
+dp = [[0] * (capacity + 1) for _ in range(n + 1)]
+
+for i in range(1, n + 1):
+    for w in range(capacity + 1):
+
+        if weights[i - 1] <= w:
+            dp[i][w] = max(
+                profits[i - 1] + dp[i - 1][w - weights[i - 1]],
+                dp[i - 1][w]
+            )
+        else:
+            dp[i][w] = dp[i - 1][w]
+
+# Find selected packages
+selected = []
+w = capacity
+
+for i in range(n, 0, -1):
+    if dp[i][w] != dp[i - 1][w]:
+        selected.append(packages[i - 1])
+        w -= weights[i - 1]
+
+selected.reverse()
+
+# ---------------- OUTPUT ----------------
+print("DELIVERY VEHICLE LOADING PROBLEM")
+print("\nVehicle Capacity =", capacity, "kg")
+
+print("\nGreedy Approach")
+print("Selected Packages:", greedy_packages)
+print("Total Profit:", greedy_profit)
+
+print("\nDynamic Programming Approach")
+print("Selected Packages:", selected)
+print("Maximum Profit:", dp[n][capacity])
+
+print("\nComparison")
+print("Greedy Profit =", greedy_profit)
+print("Dynamic Programming Profit =", dp[n][capacity])
