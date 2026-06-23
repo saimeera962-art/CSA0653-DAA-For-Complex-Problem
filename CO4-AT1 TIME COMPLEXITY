@@ -1,0 +1,9 @@
+Prim's Algorithm
+We repeatedly search the adjacency matrix to find the minimum edge.
+For V vertices, this takes O(V²) time.
+The adjacency matrix itself requires O(V²) space.
+
+Kruskal's Algorithm
+Sorting all E edges takes O(E log E) time.
+Union-Find operations are nearly constant time.
+Storing edges and parent array requires O(V + E) space.
