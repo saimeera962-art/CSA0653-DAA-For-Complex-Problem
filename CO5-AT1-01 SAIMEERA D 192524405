@@ -1,0 +1,193 @@
+# ============================================================
+# JOB SCHEDULING USING BACKTRACKING
+# ============================================================
+#
+# PROBLEM STATEMENT
+# ------------------------------------------------------------
+# A company has several jobs that must be assigned to employees.
+# Each job has:
+#   1. Duration (time required to complete the job)
+#   2. Deadline (latest completion time)
+#
+# CONSTRAINTS
+# ------------------------------------------------------------
+# 1. Every job must be assigned to one employee.
+# 2. An employee cannot work on two jobs simultaneously.
+# 3. The total assigned work should not exceed the employee's
+#    available working hours.
+# 4. Each job must be completed before its deadline.
+#
+# WHY BACKTRACKING?
+# ------------------------------------------------------------
+# The scheduling problem contains many possible assignments.
+# Backtracking explores possible assignments one by one.
+#
+# If a partial assignment violates any constraint, that branch
+# is discarded immediately. This process is called pruning.
+#
+# Thus, unnecessary computations are avoided.
+#
+# PROBLEM CATEGORY
+# ------------------------------------------------------------
+# Verification of a given schedule is easy and can be done in
+# polynomial time.
+#
+# However, finding a valid schedule among all possible
+# combinations may require checking many arrangements.
+#
+# Therefore, Job Scheduling is considered an NP-Hard problem.
+#
+# ============================================================
+# ALGORITHM
+# ============================================================
+#
+# Step 1:
+# Read employee and job information.
+#
+# Step 2:
+# Select a job.
+#
+# Step 3:
+# Try assigning it to every employee.
+#
+# Step 4:
+# Check whether:
+#    - Employee has enough free hours.
+#    - Job finishes before deadline.
+#
+# Step 5:
+# If valid, assign the job and move to the next job.
+#
+# Step 6:
+# If no valid assignment exists later,
+# remove the current assignment (Backtrack)
+# and try another employee.
+#
+# Step 7:
+# Continue until all jobs are assigned.
+#
+# ============================================================
+# TIME COMPLEXITY
+# ============================================================
+#
+# Let:
+# n = number of jobs
+# m = number of employees
+#
+# In the worst case, every job can be assigned to every employee.
+#
+# Time Complexity = O(m^n)
+#
+# ============================================================
+# SPACE COMPLEXITY
+# ============================================================
+#
+# Recursive calls are stored in memory.
+#
+# Maximum recursion depth = number of jobs.
+#
+# Space Complexity = O(n)
+#
+# ============================================================
+
+
+def schedule_jobs(job_index):
+    """
+    Recursive function that assigns jobs one by one.
+    Returns True when a complete valid schedule is found.
+    """
+
+    # All jobs assigned successfully
+    if job_index == len(job_list):
+        return True
+
+    job_name, duration, deadline = job_list[job_index]
+
+    # Try every employee for current job
+    for emp in employee_names:
+
+        finish_time = employee_work[emp] + duration
+
+        # Constraint checking
+        if finish_time <= max_hours and finish_time <= deadline:
+
+            # Assign job
+            assigned_jobs[job_name] = emp
+            employee_work[emp] += duration
+
+            # Move to next job
+            if schedule_jobs(job_index + 1):
+                return True
+
+            # Backtracking step
+            employee_work[emp] -= duration
+            assigned_jobs.pop(job_name)
+
+    return False
+
+
+# ================= INPUT SECTION =================
+
+num_employees = int(input("Enter number of employees: "))
+num_jobs = int(input("Enter number of jobs: "))
+
+employee_names = []
+
+for i in range(num_employees):
+    name = input(f"Employee {i + 1} Name: ")
+    employee_names.append(name)
+
+max_hours = int(
+    input("Enter maximum working hours available for each employee: ")
+)
+
+job_list = []
+
+print("\nEnter Job Details")
+
+for i in range(num_jobs):
+    print(f"\nJob {i + 1}")
+
+    job_name = input("Job Name: ")
+    duration = int(input("Duration Required: "))
+    deadline = int(input("Deadline: "))
+
+    job_list.append((job_name, duration, deadline))
+
+
+# ================ DATA STRUCTURES =================
+
+# Stores current workload of employees
+employee_work = {}
+
+for emp in employee_names:
+    employee_work[emp] = 0
+
+# Stores final assignment
+assigned_jobs = {}
+
+
+# ================= EXECUTION ======================
+
+print("\nFinding feasible schedule...\n")
+
+result = schedule_jobs(0)
+
+if result:
+
+    print("VALID SCHEDULE FOUND")
+    print("-" * 35)
+
+    for job, employee in assigned_jobs.items():
+        print(job, "assigned to", employee)
+
+    print("\nEmployee Work Summary")
+    print("-" * 35)
+
+    for emp in employee_names:
+        print(emp, ":", employee_work[emp], "hours")
+
+else:
+    print("No valid schedule could be generated.")
+
+
