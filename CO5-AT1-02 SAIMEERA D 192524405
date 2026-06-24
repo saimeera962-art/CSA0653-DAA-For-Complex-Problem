@@ -1,0 +1,268 @@
+# ===============================================================
+# EXAM TIMETABLING USING BACKTRACKING (GRAPH COLORING)
+# ===============================================================
+#
+# PROBLEM STATEMENT
+# ---------------------------------------------------------------
+# A university needs to schedule examinations for multiple
+# subjects. Some students are enrolled in more than one subject.
+#
+# The objective is to assign time slots to exams such that:
+#
+# 1. No student has two exams at the same time.
+# 2. Available rooms are used efficiently.
+# 3. Room capacity should not be exceeded.
+# 4. Every exam must be assigned exactly one time slot.
+#
+# ===============================================================
+# CONSTRAINTS
+# ===============================================================
+#
+# HARD CONSTRAINTS
+# ---------------------------------------------------------------
+# 1. Student Conflict Constraint
+#    If two subjects share at least one student,
+#    they cannot be scheduled in the same time slot.
+#
+# 2. Room Capacity Constraint
+#    Number of students writing an exam should not exceed
+#    the room capacity.
+#
+# 3. Unique Slot Constraint
+#    Every exam must be assigned one valid time slot.
+#
+# SOFT CONSTRAINT
+# ---------------------------------------------------------------
+# Use fewer time slots whenever possible.
+#
+# PRIORITY OF CONSTRAINTS
+# ---------------------------------------------------------------
+# Highest Priority :
+#    Student conflicts
+#
+# Medium Priority :
+#    Room capacity
+#
+# Lowest Priority :
+#    Efficient utilization of slots
+#
+# ===============================================================
+# GRAPH COLORING CONCEPT
+# ===============================================================
+#
+# Each Exam  -> Vertex
+# Conflict   -> Edge
+# Time Slot  -> Color
+#
+# Example:
+#
+#     Math ----- Physics
+#       |           |
+#       |           |
+#    Chemistry ---- English
+#
+# Connected exams cannot receive the same color
+# (time slot).
+#
+# Therefore:
+#
+# Graph Coloring = Exam Scheduling
+#
+# ===============================================================
+# PROBLEM CLASSIFICATION
+# ===============================================================
+#
+# Graph Coloring belongs to NP-Complete problems.
+#
+# Reason:
+# - Checking a timetable is easy.
+# - Finding a valid timetable for large instances
+#   requires exploring many possibilities.
+#
+# ===============================================================
+# BACKTRACKING APPROACH
+# ===============================================================
+#
+# Step 1:
+# Select an exam.
+#
+# Step 2:
+# Try assigning a time slot.
+#
+# Step 3:
+# Check:
+#   - Conflict constraints
+#   - Room capacity constraints
+#
+# Step 4:
+# If valid, assign slot and continue.
+#
+# Step 5:
+# If no valid assignment exists later,
+# remove the assignment and try another slot.
+#
+# This process is called Backtracking.
+#
+# ===============================================================
+# TIME COMPLEXITY
+# ===============================================================
+#
+# Let:
+# n = number of exams
+# m = number of available time slots
+#
+# Worst Case:
+#
+# O(m^n)
+#
+# Since each exam may try every slot.
+#
+# ===============================================================
+# SPACE COMPLEXITY
+# ===============================================================
+#
+# O(n)
+#
+# Due to recursive call stack and timetable storage.
+#
+# ===============================================================
+
+
+def is_safe(exam, slot):
+    """
+    Checks whether assigning a slot to an exam
+    violates any constraint.
+    """
+
+    # Check conflict constraints
+    for neighbour in conflict_graph[exam]:
+        if timetable.get(neighbour) == slot:
+            return False
+
+    # Check room capacity
+    if students_count[exam] > room_capacity:
+        return False
+
+    return True
+
+
+def schedule_exam(index):
+    """
+    Recursive backtracking function.
+    """
+
+    # All exams scheduled
+    if index == len(exams):
+        return True
+
+    current_exam = exams[index]
+
+    # Try each available slot
+    for slot in range(1, total_slots + 1):
+
+        if is_safe(current_exam, slot):
+
+            timetable[current_exam] = slot
+
+            if schedule_exam(index + 1):
+                return True
+
+            # Backtracking
+            timetable.pop(current_exam)
+
+    return False
+
+
+# ===============================================================
+# INPUT SECTION
+# ===============================================================
+
+num_exams = int(input("Enter number of exams: "))
+
+exams = []
+students_count = {}
+
+print("\nEnter Exam Details")
+
+for i in range(num_exams):
+    exam_name = input(f"\nExam {i+1} Name: ")
+    students = int(input("Number of Students: "))
+
+    exams.append(exam_name)
+    students_count[exam_name] = students
+
+room_capacity = int(input("\nEnter Room Capacity: "))
+total_slots = int(input("Enter Number of Available Time Slots: "))
+
+# ===============================================================
+# CONFLICT GRAPH INPUT
+# ===============================================================
+
+conflict_graph = {}
+
+for exam in exams:
+    conflict_graph[exam] = []
+
+print("\nEnter Conflict Information")
+print("(1 = Conflict Exists, 0 = No Conflict)\n")
+
+for i in range(num_exams):
+    for j in range(i + 1, num_exams):
+
+        value = int(
+            input(f"Conflict between {exams[i]} and {exams[j]} ? : ")
+        )
+
+        if value == 1:
+            conflict_graph[exams[i]].append(exams[j])
+            conflict_graph[exams[j]].append(exams[i])
+
+# ===============================================================
+# TIMETABLE STORAGE
+# ===============================================================
+
+timetable = {}
+
+# ===============================================================
+# EXECUTION
+# ===============================================================
+
+print("\nGenerating Exam Timetable...\n")
+
+result = schedule_exam(0)
+
+if result:
+
+    print("CONFLICT-FREE TIMETABLE GENERATED")
+    print("-" * 40)
+
+    for exam in exams:
+        print(
+            exam,
+            "-> Time Slot",
+            timetable[exam]
+        )
+
+else:
+    print("No feasible timetable exists.")
+
+
+
+# ===============================================================
+# CORRECTNESS OF SOLUTION
+# ===============================================================
+#
+# 1. Two conflicting exams are never assigned
+#    the same time slot.
+#
+# 2. Room capacity is checked before assignment.
+#
+# 3. Every exam receives exactly one slot.
+#
+# 4. Backtracking guarantees that all possible
+#    valid assignments are explored if needed.
+#
+# Therefore, the generated timetable is feasible
+# and satisfies all required constraints.
+#
+# ===============================================================
